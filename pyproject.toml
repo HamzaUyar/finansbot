@@ -1,0 +1,8 @@
+[project]
+name = "konsolidasyon"
+version = "1.0.0"
+description = "Konsolidasyon raporu otomatik güncelleme aracı - data.xlsx'teki %40'lık verileri alıp Konsolidasyon raporunu günceller"
+requires-python = ">=3.12"
+dependencies = [
+    "openpyxl>=3.1.5",
+]
