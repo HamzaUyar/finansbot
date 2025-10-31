@@ -12,10 +12,12 @@ from openpyxl import load_workbook
 from datetime import datetime
 import sys
 from pathlib import Path
+import shutil
 
 # Dosya yolları
-DATA_FILE = '/Users/hamzauyar/projects/konsolidasyon/data.xlsx'
-KONSOLIDASYON_FILE = '/Users/hamzauyar/projects/konsolidasyon/Konsolidasyon_2025_NV (1)_guncel.xlsx'
+BASE_DIR = Path(__file__).resolve().parent
+DEFAULT_DATA_FILE = BASE_DIR / 'data.xlsx'
+DEFAULT_KONSOLIDASYON_FILE = BASE_DIR / 'Konsolidasyon_2025_NV (1)_guncel.xlsx'
 
 # Şirket eşleştirmeleri
 # data.xlsx satır numaraları -> (Konsolidasyon satır no, şirket adı, %40'lık mı?)
@@ -72,13 +74,13 @@ def find_last_month_with_data(ws):
     return last_month_col, last_month_name
 
 
-def read_data_from_data_xlsx():
+def read_data_from_data_xlsx(data_file):
     """data.xlsx'ten tüm gerçekleşen verilerini okur ve %100'e dönüştürür"""
     print("=" * 80)
     print("DATA.XLSX DOSYASINDAN VERİLER OKUNUYOR...")
     print("=" * 80)
     
-    wb = load_workbook(DATA_FILE, data_only=True)
+    wb = load_workbook(data_file, data_only=True)
     ws = wb['Export']
     
     # Son veri olan ayı bul
@@ -117,13 +119,13 @@ def read_data_from_data_xlsx():
     return all_data, last_month_name
 
 
-def update_gercaylık_euro_sheet(all_data):
+def update_gercaylık_euro_sheet(all_data, konsolidasyon_file):
     """Gerçekleşen Aylık Euro sayfasını günceller"""
     print("\n" + "=" * 80)
     print("GERÇEKLEŞEN AYLIK EURO SAYFASI GÜNCELLENİYOR...")
     print("=" * 80)
     
-    wb = load_workbook(KONSOLIDASYON_FILE)
+    wb = load_workbook(konsolidasyon_file)
     ws = wb['gerç aylık-eur']
     
     updates_count = 0
@@ -153,12 +155,12 @@ def update_gercaylık_euro_sheet(all_data):
     print(f"\n{'='*80}")
     print(f"Toplam {updates_count} hücre güncellendi.")
     print("Dosya kaydediliyor...")
-    wb.save(KONSOLIDASYON_FILE)
+    wb.save(konsolidasyon_file)
     wb.close()
     print("✓ Gerçekleşen Aylık Euro sayfası başarıyla güncellendi!")
 
 
-def update_finansal_ay_formulas(last_month_name):
+def update_finansal_ay_formulas(last_month_name, konsolidasyon_file):
     """Finansal Raporlama AY sayfasındaki formülleri son aya göre günceller"""
     print("\n" + "=" * 80)
     print("FİNANSAL RAPORLAMA AY SAYFASI GÜNCELLENİYOR...")
@@ -189,7 +191,7 @@ def update_finansal_ay_formulas(last_month_name):
     print(f"\nSon veri olan ay: {last_month_name}")
     print(f"Hedef sütunlar: {target_budget_col} (Budget) ve {target_actual_col} (Actual)")
     
-    wb = load_workbook(KONSOLIDASYON_FILE)
+    wb = load_workbook(konsolidasyon_file)
     ws = wb['Finansal Raporlama AY']
     
     update_count = 0
@@ -240,7 +242,7 @@ def update_finansal_ay_formulas(last_month_name):
         print(f"\n{'='*80}")
         print(f"Toplam {update_count} formül güncellendi.")
         print("Dosya kaydediliyor...")
-        wb.save(KONSOLIDASYON_FILE)
+        wb.save(konsolidasyon_file)
         print("✓ Finansal Raporlama AY sayfası başarıyla güncellendi!")
     else:
         print(f"\n{'='*80}")
@@ -249,37 +251,68 @@ def update_finansal_ay_formulas(last_month_name):
     wb.close()
 
 
+def run_update(data_file, konsolidasyon_file, output_file=None):
+    """Data ve konsolidasyon dosyalarını kullanarak güncelleme işlemini yapar."""
+    data_path = Path(data_file)
+    konsolidasyon_path = Path(konsolidasyon_file)
+
+    if output_file:
+        target_path = Path(output_file)
+        shutil.copy2(konsolidasyon_path, target_path)
+    else:
+        target_path = konsolidasyon_path
+
+    # 1. data.xlsx'ten verileri oku
+    all_data, last_month_name = read_data_from_data_xlsx(data_path)
+
+    # 2. Gerçekleşen Aylık Euro sayfasını güncelle
+    update_gercaylık_euro_sheet(all_data, target_path)
+
+    # 3. Finansal Raporlama AY sayfasını güncelle
+    update_finansal_ay_formulas(last_month_name, target_path)
+
+    return target_path, last_month_name
+
+
 def main():
     """Ana program"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Konsolidasyon raporu güncelleme aracı")
+    parser.add_argument("--data", dest="data_file", default=DEFAULT_DATA_FILE, help="Data dosyası yolu (varsayılan: data.xlsx)")
+    parser.add_argument("--konsolidasyon", dest="konsolidasyon_file", default=DEFAULT_KONSOLIDASYON_FILE, help="Konsolidasyon dosyası yolu")
+    parser.add_argument("--output", dest="output_file", help="Güncellenmiş dosyanın kaydedileceği yol (varsayılan: konsolidasyon dosyasının üzerine yazar)")
+
+    args = parser.parse_args()
+
+    data_file = Path(args.data_file)
+    konsolidasyon_file = Path(args.konsolidasyon_file)
+    output_file = Path(args.output_file) if args.output_file else None
+
     print("\n" + "=" * 80)
     print("KONSOLİDASYON RAPORU GÜNCELLEME PROGRAMI")
     print("=" * 80)
-    print(f"\nData dosyası: {DATA_FILE}")
-    print(f"Konsolidasyon dosyası: {KONSOLIDASYON_FILE}")
+    print(f"\nData dosyası: {data_file}")
+    print(f"Konsolidasyon dosyası: {konsolidasyon_file}")
+    if output_file:
+        print(f"Çıktı dosyası: {output_file}")
     
     # Dosyaların varlığını kontrol et
-    if not Path(DATA_FILE).exists():
-        print(f"\n❌ HATA: {DATA_FILE} bulunamadı!")
+    if not data_file.exists():
+        print(f"\n❌ HATA: {data_file} bulunamadı!")
         sys.exit(1)
     
-    if not Path(KONSOLIDASYON_FILE).exists():
-        print(f"\n❌ HATA: {KONSOLIDASYON_FILE} bulunamadı!")
+    if not konsolidasyon_file.exists():
+        print(f"\n❌ HATA: {konsolidasyon_file} bulunamadı!")
         sys.exit(1)
     
     try:
-        # 1. data.xlsx'ten verileri oku
-        all_data, last_month_name = read_data_from_data_xlsx()
-        
-        # 2. Gerçekleşen Aylık Euro sayfasını güncelle
-        update_gercaylık_euro_sheet(all_data)
-        
-        # 3. Finansal Raporlama AY sayfasını güncelle
-        update_finansal_ay_formulas(last_month_name)
+        target_file, last_month_name = run_update(data_file, konsolidasyon_file, output_file)
         
         print("\n" + "=" * 80)
         print("✓ GÜNCELLEME BAŞARIYLA TAMAMLANDI!")
         print("=" * 80)
-        print(f"\nGüncellenmiş dosya: {KONSOLIDASYON_FILE}")
+        print(f"\nGüncellenmiş dosya: {target_file}")
         print(f"Son güncellenen ay: {last_month_name}")
         
     except Exception as e:
@@ -291,4 +324,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

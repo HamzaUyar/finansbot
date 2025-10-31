@@ -42,6 +42,15 @@ Ana programı çalıştırmak için:
 uv run update_konsolidasyon.py
 ```
 
+Farklı dosyalarla çalışmak isterseniz argümanları kullanabilirsiniz:
+
+```bash
+uv run update_konsolidasyon.py \
+  --data /dosyalarim/data_yeni.xlsx \
+  --konsolidasyon /dosyalarim/konsolidasyon_sablon.xlsx \
+  --output /dosyalarim/konsolidasyon_guncel.xlsx
+```
+
 Program şunları yapar:
 
 1. `data.xlsx` dosyasını okur
@@ -53,6 +62,19 @@ Program şunları yapar:
    - Formüllerdeki ay sütun referanslarını otomatik değiştirir
    - Örneğin: Eylül (Z, AA) → Ekim (AC, AD)
 7. Değişiklikleri kaydeder
+
+## Basit Arayüz (Streamlit)
+
+Komut satırı kullanmak istemeyen ekip arkadaşlarınız için basit bir web arayüzü de bulunuyor. Streamlit uygulamasını çalıştırmak için:
+
+```bash
+uv run streamlit run app/streamlit_app.py
+```
+
+Arayüz üzerinden:
+- Yeni `data.xlsx` ve konsolidasyon şablonunu yükleyebilir ya da proje içindeki örnek dosyaları kullanabilirsiniz.
+- **Raporu Güncelle** butonuna tıklayarak işlem başlatılır.
+- İşlem tamamlanınca güncellenmiş Excel dosyasını indirme butonu çıkar.
 
 ## Dosya Yapısı
 
@@ -117,4 +139,3 @@ Program UV kullanılarak geliştirilmiştir ve Python 3.12+ gerektirir.
 ## Lisans
 
 Bu proje özel kullanım içindir.
-
