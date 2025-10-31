@@ -72,7 +72,7 @@ uv run streamlit run app/streamlit_app.py
 ```
 
 Arayüz üzerinden:
-- Yeni `data.xlsx` ve konsolidasyon şablonunu yükleyebilir ya da proje içindeki örnek dosyaları kullanabilirsiniz.
+- Güncel `data.xlsx` dosyasını ve konsolidasyon şablonunu yükleyin.
 - **Raporu Güncelle** butonuna tıklayarak işlem başlatılır.
 - İşlem tamamlanınca güncellenmiş Excel dosyasını indirme butonu çıkar.
 
