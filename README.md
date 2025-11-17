@@ -4,9 +4,10 @@ Bu program, `data.xlsx` dosyasındaki aylık şirket verilerini alarak Konsolida
 
 ## Özellikler
 
+- ✅ **17 Kontrol Order** (finansal metrik) desteği
 - ✅ **5 şirketin** %40'lık verilerini otomatik olarak %100'e dönüştürür (x2.5 çarpımı)
 - ✅ 8 şirketin tüm aylık verilerini günceller
-- ✅ "Gerçekleşen Aylık Euro" sayfasını günceller
+- ✅ "Gerçekleşen Aylık Euro" sayfasını günceller (tüm metrikler için)
 - ✅ **"Finansal Raporlama AY" sayfasındaki formülleri günceller** (son aya göre)
 - ✅ Tüm ayları günceller (sadece son ay değil)
 - ✅ Son veri olan ayı otomatik tespit eder
@@ -24,6 +25,30 @@ Bu program, `data.xlsx` dosyasındaki aylık şirket verilerini alarak Konsolida
 6. Maxion Jantas
 7. Maxion Celik
 8. Maxion Aluminyum
+
+## Güncellenen 17 Kontrol Order (Finansal Metrikler)
+
+Program aşağıdaki 17 kontrol order'ı data.xlsx'ten okur ve konsolidasyon raporuna aktarır:
+
+1. **Net Satışlar** - Şirket ciroları
+2. **Satılan Malların Maliyeti (SMM)** - Direkt maliyetler
+3. **Brüt Kar** - Net satışlar - SMM
+4. **Faaliyet Giderleri** - Operasyonel giderler
+5. **Diğer Faaliyet Giderleri** - Yan faaliyet giderleri
+6. **EBIT** - Faiz ve vergi öncesi kar
+7. **Amortisman** - Varlık amortismanları
+8. **EBITDA** - EBIT + Amortisman
+9. **Finansman Gelir-Gideri** - Finansal gelir/giderler
+10. **Diğer Gelir-Gideri** - Olağandışı gelir/giderler
+11. **Vergi Öncesi Kar** - Vergi öncesi toplam kar
+12. **Vergi** - Kurumlar vergisi
+13. **Net Kar** - Nihai kar/zarar
+14. **Krediler** - Toplam borç
+15. **Nakit ve Bankalar** - Likit varlıklar
+16. **Net Finansal Borç** - Net borç pozisyonu
+17. **Yatırımlar** - CAPEX harcamaları
+
+⚠️ **Not**: Kontrol Order 18 (Operasyonel Nakit) ve 19 (Serbest Nakit) konsolidasyon dosyasında bulunmadığından atlanır.
 
 ## Kurulum
 
@@ -55,9 +80,10 @@ Program şunları yapar:
 
 1. `data.xlsx` dosyasını okur
 2. Son veri olan ayı tespit eder (örn: Ekim)
-3. Tüm ayların "Gerçekleşen" verilerini alır
-4. %40'lık verileri x2.5 ile çarparak %100'e dönüştürür
+3. **17 kontrol order** için tüm ayların "Gerçekleşen" verilerini alır
+4. %40'lık verileri x2.5 ile çarparak %100'e dönüştürür (5 şirket için)
 5. `Konsolidasyon_2025_NV (1)_guncel.xlsx` dosyasındaki "gerç aylık-eur" sayfasını günceller
+   - Toplam **~1,200 hücre** güncellenir (17 metrik × 8 şirket × ~10 ay)
 6. **"Finansal Raporlama AY" sayfasındaki formülleri son aya göre günceller**
    - Formüllerdeki ay sütun referanslarını otomatik değiştirir
    - Örneğin: Eylül (Z, AA) → Ekim (AC, AD)
