@@ -26,15 +26,23 @@
 Finansbot is a specialized financial automation tool designed to update consolidation reports for Turkish holding companies. It processes monthly financial data and performs intelligent data transformations based on ownership percentages.
 
 ### Key Functionality
+- **17 Financial Metrics**: Processes 17 kontrol orders (financial metrics) from data.xlsx
 - **Data Transformation**: Converts 40% ownership data to 100% consolidated figures (multiply by 2.5)
 - **Multi-Sheet Updates**: Updates both raw data sheets and formula-based reporting sheets
 - **Intelligent Month Detection**: Automatically identifies the latest available data month
 - **Dual Interface**: Command-line tool and web-based Streamlit interface
+- **Comprehensive Coverage**: Updates ~1,200 cells (17 metrics × 8 companies × ~10 months)
 
 ### Business Context
 The tool handles 8 companies with different reporting methodologies:
 - **3 companies** report 100% data directly (no transformation needed)
 - **5 companies** report 40% data (requires 2.5x multiplication for consolidation)
+
+The tool processes **17 kontrol orders** (financial metrics) from data.xlsx:
+1. Net Satışlar, 2. SMM, 3. Brüt Kar, 4. Faaliyet Giderleri, 5. Diğer Faaliyet Giderleri,
+6. EBIT, 7. Amortisman, 8. EBITDA, 9. Finansman Gelir-Gideri, 10. Diğer Gelir-Gideri,
+11. Vergi Öncesi Kar, 12. Vergi, 13. Net Kar, 14. Krediler, 15. Nakit ve Bankalar,
+16. Net Finansal Borç, 17. Yatırımlar
 
 ---
 
@@ -63,15 +71,16 @@ finansbot/
 
 #### `update_konsolidasyon.py` (Core Module)
 **Critical Constants:**
-- `COMPANY_MAPPING` (lines 26-35): Maps source rows to target rows with transformation flags
-- `MONTH_MAPPING` (lines 39-52): Maps data columns to consolidation columns (12 months)
+- `COMPANIES` (lines 26-35): List of 8 companies with 40% transformation flags
+- `KONTROL_ORDER_MAPPING` (lines 39-127): Maps 17 kontrol orders with data/kons row mappings
+- `MONTH_MAPPING` (lines 131-144): Maps data columns to consolidation columns (12 months)
 
 **Key Functions:**
-- `find_last_month_with_data(ws)` (lines 55-74): Detects latest month with actual data
-- `read_data_from_data_xlsx(data_file)` (lines 77-119): Reads and transforms source data
-- `update_gercaylık_euro_sheet(all_data, konsolidasyon_file)` (lines 122-161): Updates raw data sheet
-- `update_finansal_ay_formulas(last_month_name, konsolidasyon_file)` (lines 163-252): Updates formula-based reporting sheet
-- `run_update(data_file, konsolidasyon_file, output_file)` (lines 254-274): Main orchestration function
+- `find_last_month_with_data(ws)` (lines 147-170): Detects latest month with actual data
+- `read_data_from_data_xlsx(data_file)` (lines 173-248): Reads and transforms ALL 17 kontrol orders
+- `update_gercaylık_euro_sheet(all_data, konsolidasyon_file)` (lines 251-292): Updates raw data sheet for ALL metrics
+- `update_finansal_ay_formulas(last_month_name, konsolidasyon_file)` (lines 295-383): Updates formula-based reporting sheet
+- `run_update(data_file, konsolidasyon_file, output_file)` (lines 386-406): Main orchestration function
 
 #### `app/streamlit_app.py` (Web Interface)
 **Key Features:**
@@ -587,15 +596,18 @@ Based on codebase analysis, potential improvements:
 3. `update_finansal_ay_formulas()` - Formula updates (line 163)
 
 ### Most Important Constants
-1. `COMPANY_MAPPING` - Company-to-row mapping with 40% flags (line 26)
-2. `MONTH_MAPPING` - Month-to-column mapping (line 39)
-3. `month_to_columns` - Formula column mapping (line 170)
+1. `COMPANIES` - 8 companies with 40% flags (lines 26-35)
+2. `KONTROL_ORDER_MAPPING` - 17 financial metrics mapping (lines 39-127)
+3. `MONTH_MAPPING` - Month-to-column mapping (lines 131-144)
+4. `month_to_columns` - Formula column mapping (line 302)
 
 ### Critical Business Rules
-- 40% companies multiply by 2.5 (line 102)
-- Only "Gerçekleşen" (Actual) columns processed (odd column numbers)
-- Updates ALL months, not just latest (lines 133-153)
+- **17 kontrol orders** processed for comprehensive financial reporting
+- 40% companies multiply by 2.5 for kontrol orders 1-17 (line 226)
+- Only "Gerçekleşen" (Actual) columns processed (odd column numbers in data.xlsx)
+- Updates ALL months for ALL 17 metrics (lines 262-284)
 - Formula updates target specific columns (D, E, G, H, J, K, M, N)
+- ~1,200 cells updated per run (17 metrics × 8 companies × ~10 months)
 
 ---
 
