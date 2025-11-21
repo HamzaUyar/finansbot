@@ -34,7 +34,7 @@ jobs:
       run: |
         # Create a spec file or run directly
         # We use --collect-all streamlit to ensure all streamlit assets are included
-        pyinstaller --noconfirm --onefile --windowed --name "KonsolidasyonRaporu" --collect-all streamlit --hidden-import streamlit --hidden-import pandas --hidden-import openpyxl run_desktop.py
+        pyinstaller --noconfirm --onefile --windowed --name "ebyn" --collect-all streamlit --hidden-import streamlit --hidden-import pandas --hidden-import openpyxl run_desktop.py
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
