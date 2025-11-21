@@ -44,11 +44,10 @@ def _cleanup_temp_files(*paths):
 
 st.subheader("1. Dosyaları Yükleyin")
 uploaded_data_file = st.file_uploader(
-    "Data dosyası (.xlsx)", type=["xlsx"], help="Gerçekleşen verilerin bulunduğu data dosyası"
+    "Data dosyası (.xlsx)", help="Gerçekleşen verilerin bulunduğu data dosyası"
 )
 uploaded_konsolidasyon_file = st.file_uploader(
     "Konsolidasyon dosyası (.xlsx)",
-    type=["xlsx"],
     help="Güncellenecek konsolidasyon şablonu",
 )
 

@@ -22,7 +22,15 @@ def run_streamlit(port):
     app_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app", "streamlit_app.py")
     
     # Run streamlit as a subprocess
-    cmd = [sys.executable, "-m", "streamlit", "run", app_path, "--server.port", str(port), "--server.headless", "true", "--global.developmentMode", "false"]
+    cmd = [
+        sys.executable, "-m", "streamlit", "run", app_path,
+        "--server.port", str(port),
+        "--server.headless", "true",
+        "--global.developmentMode", "false",
+        "--server.enableXsrfProtection", "false",
+        "--server.enableCORS", "false",
+        "--browser.gatherUsageStats", "false"
+    ]
     process = subprocess.Popen(cmd)
     return process
 
@@ -37,7 +45,9 @@ def start_webview(port, streamlit_process):
             f"http://localhost:{port}",
             width=1200,
             height=800,
-            resizable=True
+            resizable=True,
+            text_select=True,
+            zoomable=True
         )
         webview.start()
     finally:
@@ -46,6 +56,9 @@ def start_webview(port, streamlit_process):
 
 if __name__ == "__main__":
     port = get_free_port()
+    
+    # Enable downloads
+    webview.settings['ALLOW_DOWNLOADS'] = True
     
     # Start Streamlit in a subprocess
     process = run_streamlit(port)
