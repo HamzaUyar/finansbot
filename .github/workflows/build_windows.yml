@@ -1,0 +1,43 @@
+name: Build Windows Executable
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install uv
+        uv sync
+        # We need to install dependencies into the system python for pyinstaller to find them easily
+        # or use uv run. Let's install directly with pip for simplicity in CI for now, 
+        # reading from pyproject.toml is a bit complex without uv.
+        # Actually, let's just use uv to export requirements.
+        uv pip compile pyproject.toml -o requirements.txt
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: |
+        # Create a spec file or run directly
+        # We use --collect-all streamlit to ensure all streamlit assets are included
+        pyinstaller --noconfirm --onefile --windowed --name "KonsolidasyonRaporu" --collect-all streamlit --hidden-import streamlit --hidden-import pandas --hidden-import openpyxl run_desktop.py
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: KonsolidasyonRaporu-Windows
+        path: dist/KonsolidasyonRaporu.exe
