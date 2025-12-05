@@ -2,11 +2,23 @@ import contextlib
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 import sys
+import os
 
 import streamlit as st
 
-# Streamlit uygulaması app/ altından çalıştığı için üst dizini PYTHONPATH'e ekliyoruz
-ROOT_DIR = Path(__file__).resolve().parent.parent
+
+def get_base_path():
+    """Get the base path - works for both frozen and normal mode."""
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # PyInstaller frozen executable
+        return Path(sys._MEIPASS)
+    else:
+        # Normal Python execution
+        return Path(__file__).resolve().parent.parent
+
+
+# Add root to path for imports
+ROOT_DIR = get_base_path()
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 

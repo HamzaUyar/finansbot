@@ -22,24 +22,23 @@ jobs:
         python -m pip install --upgrade pip
         pip install uv
         uv sync
-        # We need to install dependencies into the system python for pyinstaller to find them easily
-        # or use uv run. Let's install directly with pip for simplicity in CI for now, 
-        # reading from pyproject.toml is a bit complex without uv.
-        # Actually, let's just use uv to export requirements.
         uv pip compile pyproject.toml -o requirements.txt
         pip install -r requirements.txt
-        pip install pyinstaller
+        pip install pyinstaller pywebview
 
     - name: Build with PyInstaller
       run: |
-        # Windows'ta path separator olarak ; kullanılır
-        # --add-data ile app klasörünü ve update_konsolidasyon.py'yi dahil ediyoruz
-        pyinstaller --noconfirm --onefile --windowed --name "finansbot" `
+        # Build with console first for debugging (change --console to --windowed for release)
+        pyinstaller --noconfirm --onedir --console --name "ebyn" `
           --collect-all streamlit `
+          --collect-all streamlit_lottie `
           --hidden-import streamlit `
+          --hidden-import streamlit.runtime.scriptrunner `
+          --hidden-import streamlit.web.cli `
           --hidden-import pandas `
           --hidden-import openpyxl `
           --hidden-import webview `
+          --hidden-import clr `
           --add-data "app;app" `
           --add-data "update_konsolidasyon.py;." `
           run_desktop.py
@@ -47,5 +46,5 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: KonsolidasyonRaporu-Windows
-        path: dist/finansbot.exe
+        name: finansbot
+        path: dist/ebyn/
