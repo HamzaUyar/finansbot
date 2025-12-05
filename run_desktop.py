@@ -5,6 +5,7 @@ import time
 import socket
 import urllib.request
 import urllib.error
+import threading
 
 # Windows frozen executable için kritik - sonsuz process döngüsünü önler
 if __name__ == "__main__":
@@ -49,10 +50,33 @@ def wait_for_server(port, timeout=30):
     return False
 
 
+def patch_signal_for_thread():
+    """
+    Monkey-patch signal.signal to be a no-op when called from a non-main thread.
+    This allows Streamlit to run in a thread without crashing.
+    """
+    import signal
+    import threading
+    
+    original_signal = signal.signal
+    
+    def patched_signal(signalnum, handler):
+        # Only allow signal handling in main thread
+        if threading.current_thread() is threading.main_thread():
+            return original_signal(signalnum, handler)
+        else:
+            # In non-main thread, just return the current handler without setting
+            return signal.getsignal(signalnum)
+    
+    signal.signal = patched_signal
+
+
 def run_streamlit_server(port):
-    """Run Streamlit server directly (for frozen executable mode)."""
+    """Run Streamlit server in a thread with patched signal handling."""
     try:
-        # Set environment variables for frozen mode
+        # Patch signal module before importing streamlit bootstrap
+        patch_signal_for_thread()
+        
         base_path = get_base_path()
         
         # Add base path to Python path so imports work
@@ -65,10 +89,13 @@ def run_streamlit_server(port):
         if not os.path.exists(app_path):
             print(f"ERROR: App file not found at {app_path}")
             print(f"Base path: {base_path}")
-            print(f"Contents: {os.listdir(base_path) if os.path.exists(base_path) else 'N/A'}")
+            if os.path.exists(base_path):
+                print(f"Contents: {os.listdir(base_path)}")
             return
         
-        # Import and run streamlit
+        print(f"Starting Streamlit with app: {app_path}")
+        
+        # Import and run streamlit CLI
         from streamlit.web import cli as stcli
         
         sys.argv = [
@@ -82,6 +109,7 @@ def run_streamlit_server(port):
             "--server.fileWatcherType", "none"
         ]
         stcli.main()
+        
     except Exception as e:
         print(f"Streamlit error: {e}")
         import traceback
@@ -156,10 +184,9 @@ def start_webview(port, streamlit_process=None):
     """Start the webview window."""
     import webview
     
-    # Wait for Streamlit to actually start
     print(f"Waiting for Streamlit server on port {port}...")
     
-    if not wait_for_server(port, timeout=30):
+    if not wait_for_server(port, timeout=45):
         show_error_window(
             "Streamlit sunucusu başlatılamadı. Lütfen uygulamayı tekrar çalıştırın. "
             "Sorun devam ederse, antivirüs yazılımınızı kontrol edin."
@@ -188,7 +215,6 @@ def start_webview(port, streamlit_process=None):
 
 def main():
     import webview
-    import threading
     
     port = get_free_port()
     print(f"Using port: {port}")
@@ -199,7 +225,7 @@ def main():
     webview.settings['ALLOW_DOWNLOADS'] = True
     
     if is_frozen():
-        # Frozen mode: Streamlit'i ayrı thread'de çalıştır
+        # Frozen mode: Start Streamlit in a thread with patched signal handling
         streamlit_thread = threading.Thread(
             target=run_streamlit_server,
             args=(port,),
@@ -208,12 +234,12 @@ def main():
         streamlit_thread.start()
         
         # Give thread a moment to start
-        time.sleep(1)
+        time.sleep(2)
         
-        # Desktop window'u başlat
+        # Desktop window in main thread
         start_webview(port)
     else:
-        # Development mode: subprocess kullanabiliriz
+        # Development mode: use subprocess
         process = run_streamlit_subprocess(port)
         start_webview(port, streamlit_process=process)
 
