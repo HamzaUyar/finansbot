@@ -34,7 +34,7 @@ jobs:
       run: |
         # Windows'ta path separator olarak ; kullanılır
         # --add-data ile app klasörünü ve update_konsolidasyon.py'yi dahil ediyoruz
-        pyinstaller --noconfirm --onefile --windowed --name "ebyn" `
+        pyinstaller --noconfirm --onefile --windowed --name "finansbot" `
           --collect-all streamlit `
           --hidden-import streamlit `
           --hidden-import pandas `
@@ -48,4 +48,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: KonsolidasyonRaporu-Windows
-        path: dist/ebyn.exe
+        path: dist/finansbot.exe
