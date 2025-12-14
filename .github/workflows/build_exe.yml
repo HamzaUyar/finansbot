@@ -31,7 +31,7 @@ jobs:
         pyinstaller --clean --noconfirm `
           --onefile `
           --windowed `
-          --name "KonsolidasyonGuncelleyici" `
+          --name "ebyn" `
           --add-data "update_konsolidasyon.py;." `
           --icon NONE `
           desktop_gui.py
@@ -39,15 +39,15 @@ jobs:
     - name: EXE'yi yükle (İndirebilirsiniz)
       uses: actions/upload-artifact@v4
       with:
-        name: KonsolidasyonGuncelleyici-Windows
-        path: dist/KonsolidasyonGuncelleyici.exe
+        name: ebyn-Windows
+        path: dist/ebyn.exe
         retention-days: 30
 
     - name: Release oluştur (eğer tag push yapıldıysa)
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: dist/KonsolidasyonGuncelleyici.exe
+        files: dist/ebyn.exe
         draft: false
         prerelease: false
       env:

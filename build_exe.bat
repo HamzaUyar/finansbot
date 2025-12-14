@@ -27,7 +27,7 @@ echo [4/4] EXE olusturuluyor...
 pyinstaller --clean --noconfirm ^
     --onefile ^
     --windowed ^
-    --name "KonsolidasyonGuncelleyici" ^
+    --name "ebyn" ^
     --add-data "update_konsolidasyon.py;." ^
     desktop_gui.py
 
@@ -36,7 +36,7 @@ echo ================================================
 echo TAMAMLANDI!
 echo ================================================
 echo.
-echo EXE dosyasi: dist\KonsolidasyonGuncelleyici.exe
+echo EXE dosyasi: dist\ebyn.exe
 echo.
 echo Bu exe dosyasini istediginiz Windows bilgisayara kopyalayabilirsiniz.
 echo data.xlsx ve Konsolidasyon dosyalarini exe ile ayni klasore koyun.
