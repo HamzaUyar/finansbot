@@ -1,0 +1,54 @@
+name: Windows EXE Oluştur
+
+on:
+  # Manuel tetikleme - sadece istediğinizde çalışır
+  workflow_dispatch:
+  # Veya tag push ile otomatik
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Kodu indir
+      uses: actions/checkout@v4
+
+    - name: Python kur
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Bağımlılıkları yükle
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller openpyxl
+
+    - name: EXE oluştur
+      run: |
+        pyinstaller --clean --noconfirm `
+          --onefile `
+          --windowed `
+          --name "KonsolidasyonGuncelleyici" `
+          --add-data "update_konsolidasyon.py;." `
+          --icon NONE `
+          desktop_gui.py
+
+    - name: EXE'yi yükle (İndirebilirsiniz)
+      uses: actions/upload-artifact@v4
+      with:
+        name: KonsolidasyonGuncelleyici-Windows
+        path: dist/KonsolidasyonGuncelleyici.exe
+        retention-days: 30
+
+    - name: Release oluştur (eğer tag push yapıldıysa)
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/KonsolidasyonGuncelleyici.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -102,6 +102,24 @@ Arayüz üzerinden:
 - **Raporu Güncelle** butonuna tıklayarak işlem başlatılır.
 - İşlem tamamlanınca güncellenmiş Excel dosyasını indirme butonu çıkar.
 
+## Tek Tık .exe (Streamlit olmadan)
+
+Yazılım bilmeyen kullanıcıya tek bir Windows `.exe` verebilmek için `desktop_gui.py` dosyasını PyInstaller ile paketleyebilirsiniz. Bu arayüz Tk tabanlıdır, internet veya Streamlit gerektirmez.
+
+1. Windows 10/11 64-bit üzerinde Python 3.12+ kurulu olsun.  
+2. Bu klasörü ve Excel dosyalarını (data.xlsx, Konsolidasyon_2025_NV (1).xlsx) Windows'a kopyalayın.  
+3. PowerShell veya CMD'de klasöre girip aşağıdakileri çalıştırın:
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   pip install --upgrade pip
+   pip install pyinstaller openpyxl
+   pyinstaller --onefile --noconsole desktop_gui.py --name KonsolidasyonGuncelleyici
+   ```
+   İsterseniz varsayılan Excel dosyalarını exe içine gömmek için ekleyebilirsiniz: `--add-data "data.xlsx;." --add-data "Konsolidasyon_2025_NV (1).xlsx;."`
+4. Oluşan `dist\KonsolidasyonGuncelleyici.exe` dosyasını kullanıcıya verin (aynı klasörde data/konsolidasyon dosyaları durursa otomatik olarak önerilir).  
+5. Kullanım: Exe'yi çift tıklayın, data ve konsolidasyon dosyasını seçin, çıktı yolu varsayılan olarak `_guncel` uzantısıyla önerilir, **Güncellemeyi Başlat**'a basın.
+
 ## Dosya Yapısı
 
 ```
